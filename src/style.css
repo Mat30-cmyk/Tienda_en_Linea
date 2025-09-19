@@ -1,0 +1,45 @@
+/* Fondo para clientes */
+.bg-clientes {
+    background: #46d1d4;
+    background: linear-gradient(0deg, rgba(70, 209, 212, 1) 0%, rgba(107, 164, 255, 1) 100%);
+    min-height: 100vh;
+}
+
+/* Fondo para productos */
+.bg-productos {
+    background: #98e3b6;
+    background: radial-gradient(circle, rgba(101, 235, 154, 1) 0%, rgba(72, 140, 77, 1) 100%);
+    min-height: 100vh;
+}
+
+/* Fondo para compras */
+.bg-compras {
+    background: #f7a31b;
+    background: radial-gradient(circle, rgba(247, 163, 27, 1) 0%, rgba(255, 255, 140, 1) 100%);
+    min-height: 100vh;
+}
+
+/* Fondo para compras */
+.bg-index {
+    background: #f7a31b;
+    background: radial-gradient(circle, rgba(247, 163, 27, 1) 0%, rgba(255, 255, 140, 1) 100%);
+    min-height: 100vh;
+}
+
+/* Tarjeta semi-transparente */
+.card-glass {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /* para Safari */
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Tarjeta invisible */
+.card-invisible {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 2rem;
+}

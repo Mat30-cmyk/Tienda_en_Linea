@@ -1,0 +1,18 @@
+# Ignorar dependencias
+node_modules/
+
+# Ignorar archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar configuración personal
+.env
+*.log
+
+# Ignorar compilados
+dist/
+build/
+
+# Ignorar backups
+*.bak
+*.tmp

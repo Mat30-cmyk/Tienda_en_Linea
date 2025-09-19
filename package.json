@@ -1,0 +1,28 @@
+{
+  "name": "tienda_en_linea",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mat30-cmyk/Tienda_en_Linea.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Mat30-cmyk/Tienda_en_Linea/issues"
+  },
+  "homepage": "https://github.com/Mat30-cmyk/Tienda_en_Linea#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.71.2-canary.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "supabase": "^2.40.7"
+  }
+}
