@@ -1,22 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestión de Productos</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
   <!-- Cargar bundle UMD de Supabase que expone el global `supabase` -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    body {
+      padding-top: 70px;
+    }
+  </style>
 </head>
+
 <body class="bg-productos">
+  <nav class="navbar">
+    <div class="logo">🛍️ Tienda Online</div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="productos.html">Productos</a></li>
+      <li><a href="compras.html">Compras</a></li>
+      <li><a href="clientes.html">Clientes</a></li>
+    </ul>
+  </nav>
   <div class="container py-4">
     <h2 class="mb-4 text-center">Gestión de Productos</h2>
 
     <div class="row">
       <!-- Columna izquierda: formulario -->
       <div class="col-md-4">
-        <div class="card shadow-sm mb-4 card-glass">
+        <div class="card shadow-sm mb-9 card-glass">
           <div class="card-body">
             <h5 class="card-title">Nuevo Producto</h5>
             <form id="productoForm">
@@ -57,149 +73,150 @@
                       <th>Categoría</th>
                       <th>Stock</th>
                       <script type="module">
-                      // Asegúrate de que este import sea correcto en tu proyecto
-                      import { supabase } from '/supabase.js';
+                        // Asegúrate de que este import sea correcto en tu proyecto
+                        import { supabase } from '/supabase.js';
 
-                      async function mostrarProductos() {
-                        const tableBody = document.getElementById('productos-table-body');
-                        const container = document.getElementById('productos-container');
+                        async function mostrarProductos() {
+                          const tableBody = document.getElementById('productos-table-body');
+                          const container = document.getElementById('productos-container');
 
-                        if (!tableBody) {
-                          container.innerHTML = '<p>Error: El elemento para la tabla no se encontró. Revisa tu HTML.</p>';
-                          return;
-                        }
-
-                        // Vaciar el contenido anterior antes de cargar
-                        tableBody.innerHTML = '<tr><td colspan="5">Cargando productos...</td></tr>';
-
-                        if (!supabase) {
-                          console.error('Cliente Supabase no inicializado.');
-                          tableBody.innerHTML = '<tr><td colspan="5">Error: cliente Supabase no inicializado.</td></tr>';
-                          return;
-                        }
-
-                        try {
-                          const { data: productos, error } = await supabase
-                            .from('productos')
-                            .select('*');
-
-                          if (error) {
-                            console.error('Error en la consulta:', error);
-                            tableBody.innerHTML = `<tr><td colspan="5">Error: ${error.message}</td></tr>`;
+                          if (!tableBody) {
+                            container.innerHTML = '<p>Error: El elemento para la tabla no se encontró. Revisa tu HTML.</p>';
                             return;
                           }
 
-                          if (productos && productos.length > 0) {
-                            tableBody.innerHTML = ''; // Limpia el mensaje de "Cargando..."
-                            productos.forEach(p => {
-                              const row = document.createElement('tr');
-                              row.innerHTML = `
-                                <td>${p.nombre}</td>
-                                <td>${p.descripcion}</td>
-                                <td>$${p.precio_unitario}</td>
-                                <td>${p.categoria}</td>
-                                <td>${p.stock_disponible}</td>
-                              `;
-                              tableBody.appendChild(row);
-                            });
-                          } else {
-                            tableBody.innerHTML = '<tr><td colspan="5">No se encontraron productos.</td></tr>';
+                          // Vaciar el contenido anterior antes de cargar
+                          tableBody.innerHTML = '<tr><td colspan="5">Cargando productos...</td></tr>';
+
+                          if (!supabase) {
+                            console.error('Cliente Supabase no inicializado.');
+                            tableBody.innerHTML = '<tr><td colspan="5">Error: cliente Supabase no inicializado.</td></tr>';
+                            return;
                           }
 
-                        } catch (err) {
-                          console.error('Excepción al obtener productos:', err);
-                          tableBody.innerHTML = `<tr><td colspan="5">Excepción: ${err.message}</td></tr>`;
-                        }
-                      }
+                          try {
+                            const { data: productos, error } = await supabase
+                              .from('productos')
+                              .select('*');
 
-                      // Llamar a la función al cargar la página
-                      mostrarProductos();
-                    </script>
+                            if (error) {
+                              console.error('Error en la consulta:', error);
+                              tableBody.innerHTML = `<tr><td colspan="5">Error: ${error.message}</td></tr>`;
+                              return;
+                            }
+
+                            if (productos && productos.length > 0) {
+                              tableBody.innerHTML = ''; // Limpia el mensaje de "Cargando..."
+                              productos.forEach(p => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                  <td>${p.nombre}</td>
+                                  <td>${p.descripcion}</td>
+                                  <td>$${p.precio_unitario}</td>
+                                  <td>${p.categoria}</td>
+                                  <td>${p.stock_disponible}</td>
+                                `;
+                                tableBody.appendChild(row);
+                              });
+                            } else {
+                              tableBody.innerHTML = '<tr><td colspan="5">No se encontraron productos.</td></tr>';
+                            }
+
+                          } catch (err) {
+                            console.error('Excepción al obtener productos:', err);
+                            tableBody.innerHTML = `<tr><td colspan="5">Excepción: ${err.message}</td></tr>`;
+                          }
+                        }
+
+                        // Llamar a la función al cargar la página
+                        mostrarProductos();
+                      </script>
                     </tr>
                   </thead>
                   <tbody id="productos-table-body">
-                    </tbody>
+                  </tbody>
                 </table>
               </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script type="module">
-  // Importamos el cliente de Supabase.
-  import { supabase } from '/supabase.js';
+    <script type="module">
+      // Importamos el cliente de Supabase.
+      import { supabase } from '/supabase.js';
 
-  // Referencia al formulario
-  const form = document.getElementById("productoForm");
+      // Referencia al formulario
+      const form = document.getElementById("productoForm");
 
-  // Referencia al cuerpo de la tabla para refrescar los datos
-  const tableBody = document.getElementById('productos-table-body');
+      // Referencia al cuerpo de la tabla para refrescar los datos
+      const tableBody = document.getElementById('productos-table-body');
 
-  // Función para refrescar la tabla de productos
-  async function mostrarProductos() {
-    tableBody.innerHTML = '<tr><td colspan="5">Cargando productos...</td></tr>';
-    const { data: productos, error } = await supabase.from('productos').select('*');
+      // Función para refrescar la tabla de productos
+      async function mostrarProductos() {
+        tableBody.innerHTML = '<tr><td colspan="5">Cargando productos...</td></tr>';
+        const { data: productos, error } = await supabase.from('productos').select('*');
 
-    if (error) {
-        console.error('Error al cargar productos:', error);
-        tableBody.innerHTML = `<tr><td colspan="5">Error: ${error.message}</td></tr>`;
-        return;
-    }
+        if (error) {
+          console.error('Error al cargar productos:', error);
+          tableBody.innerHTML = `<tr><td colspan="5">Error: ${error.message}</td></tr>`;
+          return;
+        }
 
-    tableBody.innerHTML = '';
-    productos.forEach(p => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${p.nombre}</td>
-            <td>${p.descripcion}</td>
-            <td>$${p.precio_unitario}</td>
-            <td>${p.categoria}</td>
-            <td>${p.stock_disponible}</td>
-        `;
-        tableBody.appendChild(row);
-    });
-  }
+        tableBody.innerHTML = '';
+        productos.forEach(p => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+              <td>${p.nombre}</td>
+              <td>${p.descripcion}</td>
+              <td>$${p.precio_unitario}</td>
+              <td>${p.categoria}</td>
+              <td>${p.stock_disponible}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
 
-  // Event listener para el envío del formulario
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+      // Event listener para el envío del formulario
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    // Obtener valores del formulario
-    const nombre = document.getElementById("nombre").value;
-    const descripcion = document.getElementById("descripcion").value;
-    const precio = document.getElementById("precio").value;
-    const categoria = document.getElementById("categoria").value;
-    const stock = document.getElementById("stock").value;
+        // Obtener valores del formulario
+        const nombre = document.getElementById("nombre").value;
+        const descripcion = document.getElementById("descripcion").value;
+        const precio = document.getElementById("precio").value;
+        const categoria = document.getElementById("categoria").value;
+        const stock = document.getElementById("stock").value;
 
-    // Crear un objeto con los datos, usando los nombres correctos de las columnas de tu tabla
-    const nuevoProducto = {
-      nombre: nombre,
-      descripcion: descripcion,
-      precio_unitario: precio,
-      categoria: categoria,
-      stock_disponible: stock
-    };
+        // Crear un objeto con los datos, usando los nombres correctos de las columnas de tu tabla
+        const nuevoProducto = {
+          nombre: nombre,
+          descripcion: descripcion,
+          precio_unitario: precio,
+          categoria: categoria,
+          stock_disponible: stock
+        };
 
-    // Usar Supabase para insertar los datos
-    const { data, error } = await supabase
-      .from('productos')
-      .insert([nuevoProducto]);
+        // Usar Supabase para insertar los datos
+        const { data, error } = await supabase
+          .from('productos')
+          .insert([nuevoProducto]);
 
-    if (error) {
-      console.error('Error al insertar el producto:', error);
-      alert('Hubo un error al agregar el producto: ' + error.message);
-    } else {
-      console.log('Producto agregado con éxito:', data);
-      alert('Producto agregado con éxito!');
-      form.reset(); // Limpia los campos del formulario
-      await mostrarProductos(); // Recarga la tabla para mostrar el nuevo producto
-    }
-  });
+        if (error) {
+          console.error('Error al insertar el producto:', error);
+          alert('Hubo un error al agregar el producto: ' + error.message);
+        } else {
+          console.log('Producto agregado con éxito:', data);
+          alert('Producto agregado con éxito!');
+          form.reset(); // Limpia los campos del formulario
+          await mostrarProductos(); // Recarga la tabla para mostrar el nuevo producto
+        }
+      });
 
-  // Llamar a la función para mostrar productos al cargar la página
-  mostrarProductos();
-</script>
+      // Llamar a la función para mostrar productos al cargar la página
+      mostrarProductos();
+    </script>
 </body>
+
 </html>

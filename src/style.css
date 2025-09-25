@@ -1,29 +1,21 @@
 /* Fondo para clientes */
 .bg-clientes {
-    background: #46d1d4;
-    background: linear-gradient(0deg, rgba(70, 209, 212, 1) 0%, rgba(107, 164, 255, 1) 100%);
+    background: linear-gradient(135deg, #75f0ea 0%, #50a6ec 100%);
     min-height: 100vh;
+    display: flex;
 }
 
-/* Fondo para productos */
 .bg-productos {
-    background: #98e3b6;
-    background: radial-gradient(circle, rgba(101, 235, 154, 1) 0%, rgba(72, 140, 77, 1) 100%);
+    background: linear-gradient(135deg, #75f0ea 0%, #50a6ec 100%);
     min-height: 100vh;
+    display: flex;
 }
 
-/* Fondo para compras */
+/* 🛒 Fondo para compras (azul turquesa más vivo) */
 .bg-compras {
-    background: #f7a31b;
-    background: radial-gradient(circle, rgba(247, 163, 27, 1) 0%, rgba(255, 255, 140, 1) 100%);
+    background: linear-gradient(135deg, #75f0ea 0%, #50a6ec 100%);
     min-height: 100vh;
-}
-
-/* Fondo para compras */
-.bg-index {
-    background: #f7a31b;
-    background: radial-gradient(circle, rgba(247, 163, 27, 1) 0%, rgba(255, 255, 140, 1) 100%);
-    min-height: 100vh;
+    display: flex;
 }
 
 /* Tarjeta semi-transparente */
@@ -42,4 +34,56 @@
     border: none !important;
     box-shadow: none !important;
     padding: 2rem;
+}
+
+/* 🌐 Navbar estilo glassmorphism */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    /* Glass effect */
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 1000;
+}
+
+/* 🛍️ Logo */
+.navbar .logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0a66c2; /* Azul consistente */
+}
+
+/* 📋 Links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    margin: 0;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #ffffff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Hover con degradado */
+.nav-links li a:hover {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
