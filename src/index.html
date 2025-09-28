@@ -1,94 +1,136 @@
 <!DOCTYPE html>
 <html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tu Tienda Online</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../style.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../style.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="/supabase.js"></script>
     <style>
-        body {
-            background: linear-gradient(135deg, #75f0ea 0%, #50a6ec 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+      body {
+        background: linear-gradient(135deg, #75f0ea 0%, #50a6ec 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-        .titulo-principal {
-            font-size: 6rem;
-            font-weight: bold;
-            color: #0d6efd;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-        }
+      .titulo-principal {
+        font-size: 6rem;
+        font-weight: bold;
+        color: #0d6efd;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      }
 
-        .subtitulo {
-            font-size: 1.4rem;
-            font-weight: 400;
-            color: #000;
-        }
+      .subtitulo {
+        font-size: 1.4rem;
+        font-weight: 400;
+        color: #000;
+      }
 
-        .hidden {
-            display: none;
-        }
+      .hidden {
+        display: none;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <div class="card-invisible text-center">
-        <div>
-            <h2 class="subtitulo">Bienvenido a Tu</h2>
-            <h1 class="titulo-principal">Tienda Online</h1>
-        </div>
+  <body>
+    <div class="card-invisible text-center mb-5">
+      <div>
+        <h2 class="subtitulo">Bienvenido a Tu</h2>
+        <h1 class="titulo-principal">Tienda Online</h1>
+      </div>
     </div>
-    <br><br><br><br><br>
     <div class="card-invisible text-center">
-        <div id="buttons" class="mb-3">
-            <div class="botones">
-                <button class="btn btn-primary me-2" onclick="mostrarFormulario('loginForm')">Ingresar</button>
-                <button class="btn btn-success" onclick="mostrarFormulario('registerForm')">Registrarse</button>
-            </div>
+      <div id="buttons" class="ms-4">
+        <div class="botones">
+          <button
+            class="btn btn-primary me-2"
+            onclick="mostrarFormulario('loginForm')"
+          >
+            Ingresar
+          </button>
+          <button
+            class="btn btn-success"
+            onclick="mostrarFormulario('registerForm')"
+          >
+            Registrarse
+          </button>
         </div>
+      </div>
 
-
-        <!-- Formulario de login -->
-        <form id="loginForm" class="hidden mt-3">
-            <h5 class="subtitulo">Iniciar Sesión</h5>
-            <div class="mb-3">
-                <input type="email" class="form-control" placeholder="Correo electrónico" required>
-            </div>
-            <div class="mb-3">
-                <input type="password" class="form-control" placeholder="Contraseña" required>
-            </div>
-            <button onclick="window.location.href='./frontend/productos.html'" type="submit" class="btn btn-primary w-100">Ingresar</button>
-        </form>
-
-        <!-- Formulario de registro -->
-        <form id="registerForm" class="hidden mt-3">
-            <h5 class="subtitulo">Crear Cuenta</h5>
-            <div class="mb-3">
-                <input type="text" class="form-control" placeholder="Nombre completo" required>
-            </div>
-            <div class="mb-3">
-                <input type="email" class="form-control" placeholder="Correo electrónico" required>
-            </div>
-            <div class="mb-3">
-                <input type="password" class="form-control" placeholder="Contraseña" required>
-            </div>
-            <button onclick="window.location.href='index.html'" type="submit" class="btn btn-success w-100">Registrarte</button>
-        </form>
+      <!-- Formulario de login -->
+      <form id="loginForm" class="hidden mt-3 mb-4 ms-4">
+        <h5 class="subtitulo">Iniciar Sesión</h5>
+        <div class="mb-3">
+          <input
+            type="email"
+            id="loginEmail"
+            class="form-control"
+            placeholder="Correo electrónico"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <input
+            type="password"
+            id="loginPassword"
+            class="form-control"
+            placeholder="Contraseña"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        <div id="loginError" class="text-danger mt-2"></div>
+      </form>
+      <!-- Formulario de registro -->
+      <form id="registerForm" class="hidden mt-3 mb-4 ms-4">
+        <h5 class="subtitulo">Crear Cuenta</h5>
+        <div class="mb-3">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Nombre completo"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <input
+            type="email"
+            class="form-control"
+            placeholder="Correo electrónico"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <input
+            type="password"
+            class="form-control"
+            placeholder="Contraseña"
+            required
+          />
+        </div>
+        <button
+          onclick="window.location.href='index.html'"
+          type="submit"
+          class="btn btn-success w-100"
+        >
+          Registrarte
+        </button>
+      </form>
     </div>
 
     <script>
-        function mostrarFormulario(id) {
-            document.getElementById("loginForm").classList.add("hidden");
-            document.getElementById("registerForm").classList.add("hidden");
-            document.getElementById(id).classList.remove("hidden");
-        }
+      function mostrarFormulario(id) {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("registerForm").classList.add("hidden");
+        document.getElementById(id).classList.remove("hidden");
+      }
     </script>
-</body>
-
+  </body>
 </html>
