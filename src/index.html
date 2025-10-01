@@ -9,13 +9,14 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script src="/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
+    <script type="module" src="/supabase.js"></script>
     <style>
       body {
         background: linear-gradient(135deg, #75f0ea 0%, #50a6ec 100%);
         min-height: 100vh;
         display: flex;
+        flex-direction: column;/* Cambiado para centrar mejor el contenido*/
         align-items: center;
         justify-content: center;
       }
@@ -34,7 +35,7 @@
       }
 
       .hidden {
-        display: none;
+        display: none !important;
       }
     </style>
   </head>
@@ -94,14 +95,25 @@
         <div class="mb-3">
           <input
             type="text"
+            id="registerName"
             class="form-control"
             placeholder="Nombre completo"
             required
           />
         </div>
         <div class="mb-3">
+          <label for="registerRol" class="form-label">Selecciona tu Rol</label>
+          <select id="registerRol" class="form-select" required>
+            <option value="">Selecciona una opción</option>
+            <option value="cliente">Comprador</option>
+            <option value="vendedor">Vendedor</option>
+          </select>
+          </select>
+        </div>
+        <div class="mb-3">
           <input
             type="email"
+            id="registerEmail"
             class="form-control"
             placeholder="Correo electrónico"
             required
@@ -110,27 +122,181 @@
         <div class="mb-3">
           <input
             type="password"
+            id="registerPassword"
             class="form-control"
             placeholder="Contraseña"
             required
           />
         </div>
         <button
-          onclick="window.location.href='index.html'"
           type="submit"
           class="btn btn-success w-100"
         >
           Registrarte
         </button>
+        <div id="registerError" class="text-danger mt-2"></div>
       </form>
     </div>
 
+    
+
     <script>
+      //Funcion para mostrar y ocultar formularios
       function mostrarFormulario(id) {
         document.getElementById("loginForm").classList.add("hidden");
         document.getElementById("registerForm").classList.add("hidden");
+        document.getElementById("loginError").innerText = ""; //Limpiar errores de inicio de sesion
+        document.getElementById("registerError").innerText = ""; //Limpiar errores de registro
         document.getElementById(id).classList.remove("hidden");
       }
+    </script>
+
+    <script type="module">
+      // Importamos el cliente de Supabase
+      import { supabase } from "/supabase.js";
+
+      // Función auxiliar para insertar el prefil y su rol
+      async function inserRol(userId, fullName, role) {
+        const {error: profileError} = await supabase
+          .from('profiles')
+          .insert([{
+            id: userId,
+            full_name: fullName,
+            role: role
+            // created_at se puede omitir se tiene un valor predeterminado en la base de datos
+          }]);
+          return profileError;
+      }
+
+      // Función para manejar ka navegación basada en el rol
+      async function navegacionRol(user) {
+        // 1. Obtener el perfil del usuario y el rol
+        const{ data: profile, error} = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+
+          if (error || !profile || !profile.role) {
+            console.error("Error: Rol no encontrado para el usuario.", error);
+            alert('Tu rol no pudo ser asignado correctamente. Contacta al soporte o intenta registrarte de nuevo.');
+            await supabase.auth.signOut(); // Cierra la sesión si no hay rol
+            window.location.href = './index.html'; // Redirige al login
+            return; 
+          }
+
+          const role = profile.role;
+
+          // 2. Redirigir según el rol
+          switch (role) {
+            case 'admin':
+                // Un dashboard con acceso total
+                window.location.href = "./frontend/productos.html";// Usaremos productos  como el dashboard
+              break;
+            
+            case 'vendedor':
+               // Acceso lomitado al manejo de ventas y productos
+                window.location.href =  "./frontend/productos.html";
+              break;
+            
+            case 'cliente':
+              // Redireccion para el comprador de produtos
+                window.location.href = "./frontend/productos.html";
+                break;
+          
+            default:
+              console.error("Rol no reconocido:", role);
+              alert('Tú rol no es válido. Cerrando sesión');
+              await supabase.auth.signOut();
+              break;
+          }
+      }
+
+
+      // Función de manejo de inicio de sesión
+      async function inicioSesion(e) {
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        const errorDiv = document.getElementById("loginError");
+        errorDiv.textContent = ""; // Limpiar errores anteriores
+
+        const {
+          data , error
+        } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          console.error("Error de login:", error.message);
+          errorDiv.textContent = ' Error al iniciar sesión. Verifica tu email y contraseña.';
+        } else if (data && data.user) {
+          alert('Inicio de sesión exitoso!');
+          // Redirigir al usuario al dashboard correcto basado en su rol
+          await navegacionRol(data.user);
+        }
+      }
+
+      // Función de manejo de registro
+      // index.html: alrededor de la línea 251
+
+// Función de manejo de registro
+async function manejoRegistro(e) {
+  e.preventDefault();
+  const email = document.getElementById("registerEmail").value;
+  const password = document.getElementById("registerPassword").value;
+  const fullName = document.getElementById("registerName").value; 
+  const role = document.getElementById("registerRol").value;
+  const errorDiv = document.getElementById("registerError");
+  errorDiv.textContent = ""; // Limpiar errores anteriores
+
+  // Asignamos el rol por defecto de 'cliente'
+  const defaultRole = 'cliente';
+
+  //1. Registramos al usuario en auth.user
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { // Estos metadatos se guardan en el campo `raw_user_meta_data`
+        full_name: fullName,
+        role: role
+      }
+    }
+  });
+
+  if (error) {
+    console.error("Error de registro:", error.message);
+    errorDiv.textContent = `Error al registrarse: ${error.message}`;
+    return; // <-- CORRECCIÓN 1: Detener la función si hay error
+  } 
+  // Si llegamos aquí, la cuenta de AUTH fue creada y el email de confirmación fue enviado.
+  alert("Registro exitoso! Por favor, revisa tu correo para confirmar la cuenta.");
+  
+  // Se muestra el formulario de login después del registro
+  mostrarFormulario('loginForm');
+  document.getElementById("registerForm").reset();//LImpiar el formulario
+}
+
+      // Asociar las funciones de los eventos submit de los formularios
+      document.getElementById("loginForm").addEventListener("submit", inicioSesion);
+      document.getElementById("registerForm").addEventListener("submit", manejoRegistro);
+
+      // Verificar si el usuario ya está autenticado al cargar la página
+      async function veriUser() {
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          // Si hay un usuario logueado, redirigir directamente
+          console.log("Usuario ya logueado, redirigiendo por rol...");
+          await navegacionRol(user); 
+        }
+      }
+
+      veriUser();
     </script>
   </body>
 </html>
