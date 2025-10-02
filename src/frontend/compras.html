@@ -12,40 +12,44 @@
             padding-top: 70px;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body class="bg-compras">
     <nav class="navbar">
         <div class="logo">🛍️ Tienda Online</div>
-    <ul class="nav-links">
-      <li><a href="../index.html">Inicio</a></li>
-      <li><a href="productos.html">Productos</a></li>
-      <li><a href="compras.html">Compras</a></li>
-      <li><a href="clientes.html">Clientes</a></li>
-      <li><a href="reporte.html">Reporte</a></li>
-    </ul>
-  </nav>
+        <ul class="nav-links">
+            <li><a href="../index.html">Inicio</a></li>
+            <li><a href="productos.html">Productos</a></li>
+            <li><a href="compras.html">Compras</a></li>
+            <li><a href="clientes.html">Clientes</a></li>
+            <li><a href="reporte.html">Reporte</a></li>
+        </ul>
+    </nav>
     <div class="container py-4">
         <h2 class="mb-4 text-center">Gestión de Compras</h2>
 
         <div class="row">
-            <!-- Formulario compras -->
             <div class="col-md-4">
                 <div class="card shadow-sm mb-4 card-glass">
                     <div class="card-body">
                         <h5 class="card-title">Nueva Compra</h5>
                         <form id="compraForm">
                             <div class="mb-3">
-                                <input type="text" id="cliente" class="form-control" placeholder="Cliente" required>
+                                <input type="number" id="cliente_id" class="form-control" placeholder="ID del Cliente"
+                                    required>
                             </div>
                             <div class="mb-3">
-                                <input type="text" id="producto" class="form-control" placeholder="Producto" required>
+                                <input type="number" id="producto_id" class="form-control" placeholder="ID del Producto"
+                                    required>
                             </div>
                             <div class="mb-3">
-                                <input type="number" id="cantidad" class="form-control" placeholder="Cantidad" required>
+                                <input type="number" id="cantidad" class="form-control" placeholder="Cantidad" required
+                                    min="1">
                             </div>
                             <div class="mb-3">
-                                <input type="number" id="total" class="form-control" placeholder="Total ($)" required>
+                                <input type="number" id="total" class="form-control" placeholder="Total ($)" step="0.01"
+                                    required min="0">
                             </div>
                             <div class="mb-3">
                                 <input type="date" id="fecha" class="form-control" required>
@@ -55,8 +59,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Tabla compras -->
             <div class="col-md-8">
                 <div class="card shadow-sm card-glass">
                     <div class="card-body">
@@ -65,8 +67,8 @@
                             <table class="table table-bordered table-hover">
                                 <thead class="table-white bg-dark">
                                     <tr>
-                                        <th>Cliente</th>
-                                        <th>Producto</th>
+                                        <th>Cliente ID</th>
+                                        <th>Producto ID</th>
                                         <th>Cantidad</th>
                                         <th>Total</th>
                                         <th>Fecha</th>
@@ -81,29 +83,118 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        // Importar la instancia de Supabase desde tu archivo de conexión
+        import { supabase } from '../../supabase.js';
+
+        if (!supabase) {
+            console.error('Error: La conexión a Supabase no está inicializada. Verifica la ruta de supabase.js y la configuración.');
+            // Salir si no hay conexión
+            document.getElementById("comprasTableBody").innerHTML = '<tr><td colspan="5" class="text-danger text-center">Fallo de conexión a Supabase.</td></tr>';
+        }
+
         const compraForm = document.getElementById("compraForm");
-        const comprasTable = document.getElementById("comprasTableBody");
+        const comprasTableBody = document.getElementById("comprasTableBody");
+        const TABLA_COMPRAS = 'compras';
 
-        compraForm.addEventListener("submit", (e) => {
+        // ------------------------------------
+        // FUNCIONES DE INTERFAZ Y RENDERIZADO
+        // ------------------------------------
+
+        /**
+         * Dibuja las filas de la tabla con los datos de las compras.
+         */
+        function renderCompras(compras) {
+            comprasTableBody.innerHTML = ''; // Limpiar la tabla
+            if (compras && compras.length > 0) {
+                compras.forEach(compra => {
+                    const totalFormateado = parseFloat(compra.total).toFixed(2);
+
+                    const row = `
+                        <tr>
+                            <td>${compra.cliente_id}</td>
+                            <td>${compra.producto_id}</td>
+                            <td>${compra.cantidad}</td>
+                            <td>$${totalFormateado}</td>
+                            <td>${compra.fecha}</td>
+                        </tr>
+                    `;
+                    comprasTableBody.innerHTML += row;
+                });
+            } else {
+                comprasTableBody.innerHTML = '<tr><td colspan="5" class="text-center">No hay compras registradas.</td></tr>';
+            }
+        }
+
+        // ------------------------------------
+        // OPERACIONES CON SUPABASE
+        // ------------------------------------
+
+        /**
+         * Carga y muestra todas las compras desde Supabase (SELECT).
+         */
+        async function loadCompras() {
+            if (!supabase) return;
+
+            try {
+                // Selecciona todos los campos y ordena por fecha
+                const { data, error } = await supabase
+                    .from(TABLA_COMPRAS)
+                    .select('*')
+                    .order('fecha', { ascending: false });
+
+                if (error) throw error;
+
+                renderCompras(data); // Renderizar los datos cargados
+            } catch (error) {
+                console.error('Error al cargar las compras:', error.message);
+                comprasTableBody.innerHTML = `<tr><td colspan="5" class="text-danger text-center">Error al cargar datos: ${error.message}</td></tr>`;
+            }
+        }
+
+        /**
+         * Maneja el envío del formulario e inserta la compra en Supabase (INSERT).
+         */
+        compraForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const cliente = document.getElementById("cliente").value;
-            const producto = document.getElementById("producto").value;
-            const cantidad = document.getElementById("cantidad").value;
-            const total = document.getElementById("total").value;
-            const fecha = document.getElementById("fecha").value;
+            if (!supabase) return;
 
-            comprasTable.innerHTML += `
-        <tr>
-          <td>${cliente}</td>
-          <td>${producto}</td>
-          <td>${cantidad}</td>
-          <td>$${total}</td>
-          <td>${fecha}</td>
-        </tr>
-      `;
-            compraForm.reset();
+            // Obtener y preparar los valores del formulario
+            const nuevaCompra = {
+                // Convertir a Int y Float/Numeric para que coincida con los tipos de la DB
+                cliente_id: parseInt(document.getElementById("cliente_id").value),
+                producto_id: parseInt(document.getElementById("producto_id").value),
+                cantidad: parseInt(document.getElementById("cantidad").value),
+                total: parseFloat(document.getElementById("total").value),
+                fecha: document.getElementById("fecha").value
+            };
+
+            try {
+                // Insertar los datos en la tabla 'compras'
+                const { error } = await supabase
+                    .from(TABLA_COMPRAS)
+                    .insert([nuevaCompra])
+                    .select(); // Usamos select() para obtener la fila insertada y asegurar la confirmación
+
+                if (error) throw error;
+
+                alert('🛍️ Compra registrada exitosamente!');
+                compraForm.reset();
+
+                // Recargar la lista para mostrar la nueva compra
+                loadCompras();
+
+            } catch (error) {
+                console.error('Error al registrar la compra:', error.message);
+                alert('⚠️ Error al registrar la compra. Mensaje: ' + error.message);
+            }
         });
+
+        // ------------------------------------
+        // INICIO
+        // ------------------------------------
+        // Cargar las compras al iniciar la página
+        window.addEventListener('load', loadCompras);
     </script>
 </body>
 
