@@ -102,14 +102,13 @@
           />
         </div>
         <div class="mb-3">
-          <label for="registerRol" class="form-label">Selecciona tu Rol</label>
-          <select id="registerRol" class="form-select" required>
-            <option value="">Selecciona una opción</option>
-            <option value="cliente">Comprador</option>
+        <label for="registerRole" class="form-label">Rol</label>
+        <select class="form-select" id="registerRole" required>
+            <option value="cliente" selected>Cliente (Default)</option>
             <option value="vendedor">Vendedor</option>
-          </select>
-          </select>
-        </div>
+            <option value="admin">Administrador</option>
+        </select>
+    </div>
         <div class="mb-3">
           <input
             type="email"
@@ -150,6 +149,7 @@
         document.getElementById(id).classList.remove("hidden");
       }
     </script>
+
 
     <script type="module">
       // Importamos el cliente de Supabase
@@ -238,45 +238,48 @@
         }
       }
 
-      // Función de manejo de registro
-      // index.html: alrededor de la línea 251
-
 // Función de manejo de registro
+// index.html (Función manejoRegistro simplificada)
 async function manejoRegistro(e) {
-  e.preventDefault();
-  const email = document.getElementById("registerEmail").value;
-  const password = document.getElementById("registerPassword").value;
-  const fullName = document.getElementById("registerName").value; 
-  const role = document.getElementById("registerRol").value;
-  const errorDiv = document.getElementById("registerError");
-  errorDiv.textContent = ""; // Limpiar errores anteriores
+    e.preventDefault();
 
-  // Asignamos el rol por defecto de 'cliente'
-  const defaultRole = 'cliente';
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+    const fullName = document.getElementById("registerName").value;
+    // Asegúrate de que el ID es 'registerRole' y que los values son 'admin', 'vendedor', 'cliente'
+    const role = document.getElementById("registerRole").value; 
+    
+    const errorDiv = document.getElementById("registerError");
+    errorDiv.textContent = "";
 
-  //1. Registramos al usuario en auth.user
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { // Estos metadatos se guardan en el campo `raw_user_meta_data`
-        full_name: fullName,
-        role: role
-      }
+    console.log(`Registrando usuario como rol: ${role}`);
+
+    // 💡 PASO 1: SOLO REGISTRAMOS EN LA AUTENTICACIÓN
+    // El rol y el nombre se pasan como metadatos (raw_user_meta_data)
+    const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+                full_name: fullName,
+                role: role // El Trigger usará este valor
+            }
+        }
+    });
+
+    if (authError) {
+        console.error("Error de registro (Auth):", authError.message);
+        errorDiv.textContent = `Error al registrarse: ${authError.message}`;
+        return;
     }
-  });
 
-  if (error) {
-    console.error("Error de registro:", error.message);
-    errorDiv.textContent = `Error al registrarse: ${error.message}`;
-    return; // <-- CORRECCIÓN 1: Detener la función si hay error
-  } 
-  // Si llegamos aquí, la cuenta de AUTH fue creada y el email de confirmación fue enviado.
-  alert("Registro exitoso! Por favor, revisa tu correo para confirmar la cuenta.");
-  
-  // Se muestra el formulario de login después del registro
-  mostrarFormulario('loginForm');
-  document.getElementById("registerForm").reset();//LImpiar el formulario
+    // 💡 PASO 2: EL PERFIL EN public.profiles SE CREA AUTOMÁTICAMENTE
+    // por la función handle_new_user() y el trigger que creamos en la DB.
+
+    alert(`Registro exitoso! Te has registrado como ${role}. Por favor, revisa tu correo para confirmar la cuenta.`);
+
+    mostrarFormulario('loginForm');
+    document.getElementById("registerForm").reset();
 }
 
       // Asociar las funciones de los eventos submit de los formularios
