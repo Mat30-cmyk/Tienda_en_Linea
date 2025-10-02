@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="../style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
-<body class="bg-light">
+<body class="bg-reportes">
+  <!-- 🌐 Navbar -->
   <nav class="navbar">
     <div class="logo">🛍️ Tienda Online</div>
     <ul class="nav-links">
@@ -16,18 +17,21 @@
       <li><a href="productos.html">Productos</a></li>
       <li><a href="compras.html">Compras</a></li>
       <li><a href="clientes.html">Clientes</a></li>
-      <li><a href="reporte.html">Reporte</a></li>
+      <li><a href="reportes.html" class="active">Reporte</a></li>
     </ul>
   </nav>
 
-  <div class="container py-4">
-    <h2 class="mb-4 text-center">📊 Reporte de Ventas</h2>
+  <!-- 📊 Contenedor principal -->
+  <div class="container d-flex justify-content-center align-items-start py-5">
+    <div class="card-glass w-100 p-4 mt-5">
+      <h2 class="mb-4 text-center">📊 Reporte de Ventas</h2>
 
-    <div class="text-center mb-3">
-      <button id="btnReporte" class="btn btn-primary">Generar Reporte</button>
+      <div class="text-center mb-3">
+        <button id="btnReporte" class="btn btn-primary">Generar Reporte</button>
+      </div>
+
+      <div id="reporte" class="table-responsive"></div>
     </div>
-
-    <div id="reporte"></div>
   </div>
 
   <script type="module">
@@ -39,24 +43,27 @@
     btn.addEventListener("click", async () => {
       contenedor.innerHTML = "<p class='text-center'>⏳ Cargando reporte...</p>";
 
+      // ⚡ Obtener datos desde la tabla COMPRAS
       const { data, error } = await supabase
-        .from("ventas")
+        .from("compras")
         .select("fecha, producto, cantidad, total");
 
       if (error) {
-        contenedor.innerHTML = "<p class='text-danger'>❌ Error cargando ventas</p>";
+        contenedor.innerHTML = "<p class='text-danger'>❌ Error cargando reporte</p>";
         console.error(error);
         return;
       }
 
-      // Agrupamos ventas por fecha
+      // 📌 Agrupar compras por fecha
       const agrupado = {};
-      data.forEach(v => {
-        if (!agrupado[v.fecha]) agrupado[v.fecha] = [];
-        agrupado[v.fecha].push(v);
+      data.forEach(c => {
+        if (!agrupado[c.fecha]) agrupado[c.fecha] = [];
+        agrupado[c.fecha].push(c);
       });
 
       let html = "";
+      let granTotal = 0;
+
       for (const fecha in agrupado) {
         const ventasDia = agrupado[fecha];
         let totalDia = 0;
@@ -82,6 +89,15 @@
         </tr>`;
 
         html += `</tbody></table>`;
+
+        granTotal += totalDia;
+      }
+
+      // 🧾 Gran total de todas las fechas
+      if (granTotal > 0) {
+        html += `<div class="alert alert-info text-end mt-4 fw-bold">
+          💰 GRAN TOTAL: $${granTotal}
+        </div>`;
       }
 
       contenedor.innerHTML = html || "<p>No hay ventas registradas.</p>";
