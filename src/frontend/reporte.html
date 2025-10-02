@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte de Ventas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body class="bg-reportes">
+  <!-- 🌐 Navbar -->
+  <nav class="navbar">
+    <div class="logo">🛍️ Tienda Online</div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li><a href="productos.html">Productos</a></li>
+      <li><a href="compras.html">Compras</a></li>
+      <li><a href="clientes.html">Clientes</a></li>
+      <li><a href="reportes.html" class="active">Reporte</a></li>
+    </ul>
+  </nav>
+
+  <!-- 📊 Contenedor principal -->
+  <div class="container d-flex justify-content-center align-items-start py-5">
+    <div class="card-glass w-100 p-4 mt-5">
+      <h2 class="mb-4 text-center">📊 Reporte de Ventas</h2>
+
+      <div class="text-center mb-3">
+        <button id="btnReporte" class="btn btn-primary">Generar Reporte</button>
+      </div>
+
+      <div id="reporte" class="table-responsive"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from "/supabase.js";
+
+    const btn = document.getElementById("btnReporte");
+    const contenedor = document.getElementById("reporte");
+
+    btn.addEventListener("click", async () => {
+      contenedor.innerHTML = "<p class='text-center'>⏳ Cargando reporte...</p>";
+
+      // ⚡ Obtener datos desde la tabla COMPRAS
+      const { data, error } = await supabase
+        .from("compras")
+        .select("fecha, producto, cantidad, total");
+
+      if (error) {
+        contenedor.innerHTML = "<p class='text-danger'>❌ Error cargando reporte</p>";
+        console.error(error);
+        return;
+      }
+
+      // 📌 Agrupar compras por fecha
+      const agrupado = {};
+      data.forEach(c => {
+        if (!agrupado[c.fecha]) agrupado[c.fecha] = [];
+        agrupado[c.fecha].push(c);
+      });
+
+      let html = "";
+      let granTotal = 0;
+
+      for (const fecha in agrupado) {
+        const ventasDia = agrupado[fecha];
+        let totalDia = 0;
+
+        html += `<h4 class="mt-4">📅 ${fecha}</h4>`;
+        html += `<table class="table table-bordered table-hover">
+          <thead class="table-light">
+            <tr><th>Producto</th><th>Cantidad</th><th>Total</th></tr>
+          </thead><tbody>`;
+
+        ventasDia.forEach(v => {
+          html += `<tr>
+            <td>${v.producto}</td>
+            <td>${v.cantidad}</td>
+            <td>$${v.total}</td>
+          </tr>`;
+          totalDia += v.total;
+        });
+
+        html += `<tr class="fw-bold table-secondary">
+          <td colspan="2">TOTAL DEL DÍA</td>
+          <td>$${totalDia}</td>
+        </tr>`;
+
+        html += `</tbody></table>`;
+
+        granTotal += totalDia;
+      }
+
+      // 🧾 Gran total de todas las fechas
+      if (granTotal > 0) {
+        html += `<div class="alert alert-info text-end mt-4 fw-bold">
+          💰 GRAN TOTAL: $${granTotal}
+        </div>`;
+      }
+
+      contenedor.innerHTML = html || "<p>No hay ventas registradas.</p>";
+    });
+  </script>
+</body>
+</html>
