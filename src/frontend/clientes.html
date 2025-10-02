@@ -25,11 +25,11 @@
       <li><a href="reporte.html">Reporte</a></li>
     </ul>
   </nav>
+
   <div class="container py-4">
     <h2 class="mb-4 text-center">Gestión de Clientes</h2>
 
     <div class="row">
-      <!-- Formulario clientes -->
       <div class="col-md-4">
         <div class="card shadow-sm mb-4 card-glass">
           <div class="card-body">
@@ -42,7 +42,7 @@
                 <input type="email" id="email" class="form-control" placeholder="Correo electrónico" required>
               </div>
               <div class="mb-3">
-                <input type="text" id="telefono" class="form-control" placeholder="Teléfono">
+                <input type="tel" id="telefono" class="form-control" placeholder="Teléfono">
               </div>
               <div class="mb-3">
                 <input type="text" id="direccion" class="form-control" placeholder="Dirección">
@@ -53,20 +53,20 @@
         </div>
       </div>
 
-      <!-- Tabla clientes -->
       <div class="col-md-8">
         <div class="card shadow-sm card-glass">
           <div class="card-body">
             <h5 class="card-title">Lista de Clientes</h5>
             <div class="table-responsive">
               <table class="table table-bordered table-hover">
-                <thead class="table-white bg-dark">
+                <thead class="table-dark">
                   <tr>
+                    <th>ID</th>
                     <th>Nombre</th>
-                    <th>Email</th>
+                    <th>Correo</th>
                     <th>Teléfono</th>
                     <th>Dirección</th>
-                  </tr>
+                    </tr>
                 </thead>
                 <tbody id="clientesTableBody"></tbody>
               </table>
@@ -77,28 +77,69 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const clienteForm = document.getElementById("clienteForm");
-    const clientesTable = document.getElementById("clientesTableBody");
+    // Configuración Supabase
+    const SUPABASE_URL = "https://iytzsilqbbgoqokjsmal.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5dHpzaWxxYmJnb3Fva2pzbWFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0MjgzMjgsImV4cCI6MjA3NTAwNDMyOH0.0kKGiyJFyBwzDpwTC45CDezDzCOW5m5a7wdKNKGRNJI";
 
-    clienteForm.addEventListener("submit", (e) => {
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Cargar clientes
+    async function cargarClientes() {
+      const { data, error } = await supabase.from("clientes").select("*");
+
+      if (error) {
+        console.error("Error cargando clientes:", error);
+        return;
+      }
+
+      const clientesTable = document.getElementById("clientesTableBody");
+      clientesTable.innerHTML = "";
+
+      data.forEach(cliente => {
+        clientesTable.innerHTML += `
+          <tr>
+            <td>${cliente.id}</td>
+            <td>${cliente.nombre_completo}</td> 
+            <td>${cliente.correo}</td>
+            <td>${cliente.telefono || ''}</td>
+            <td>${cliente.direccion || ''}</td>
+            </tr>
+        `;
+      });
+    }
+
+    // Guardar nuevo cliente
+    document.getElementById("clienteForm").addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const nombre = document.getElementById("nombre").value;
-      const email = document.getElementById("email").value;
+      const correo = document.getElementById("email").value;
+      // *** NUEVAS VARIABLES PARA TELÉFONO Y DIRECCIÓN ***
       const telefono = document.getElementById("telefono").value;
       const direccion = document.getElementById("direccion").value;
+      // *************************************************
 
-      clientesTable.innerHTML += `
-        <tr>
-          <td>${nombre}</td>
-          <td>${email}</td>
-          <td>${telefono}</td>
-          <td>${direccion}</td>
-        </tr>
-      `;
-      clienteForm.reset();
+      // *** INSERCIÓN CORREGIDA PARA INCLUIR TODOS LOS CAMPOS ***
+      const { error } = await supabase.from("clientes").insert([{ 
+        nombre_completo: nombre, 
+        correo: correo,
+        telefono: telefono,
+        direccion: direccion
+      }]);
+      // ********************************************************
+
+      if (error) {
+        console.error("Error insertando cliente:", error);
+      } else {
+        cargarClientes(); // refresca tabla después de insertar
+        e.target.reset();
+      }
     });
+
+    // Cargar clientes al iniciar
+    cargarClientes();
   </script>
 </body>
-
 </html>
